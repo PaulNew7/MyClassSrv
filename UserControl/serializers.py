@@ -5,14 +5,15 @@ from rest_framework import serializers
 class GradeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Grade
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'created_at', 'updated_at')
 
 
 class StudentSerializer(serializers.HyperlinkedModelSerializer):
     grade = GradeSerializer(read_only=False)
+
     class Meta:
         model = Student
-        fields = ('id', 'name', 'code', 'gender', 'grade')
+        fields = ('id', 'name', 'code', 'gender', 'grade', 'created_at', 'updated_at')
 
     def create(self, validated_data):
         grade_data = validated_data.pop('grade')

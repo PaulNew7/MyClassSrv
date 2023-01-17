@@ -21,6 +21,6 @@ class Student(models.Model):
 
 
 class Grade(models.Model):
-    name = models.CharField(max_length=50, blank=False, null=False, db_index=True)
+    name = models.CharField(max_length=50, blank=False, null=False, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
