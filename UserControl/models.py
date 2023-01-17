@@ -15,12 +15,12 @@ class Student(models.Model):
     name = models.CharField(max_length=32, blank=False, null=False, db_index=True)
     code = models.CharField(max_length=8, blank=False, null=False, validators=[num_only], unique=True)
     gender = models.SmallIntegerField(blank=False, null=False, choices=gender_choices)
-    my_class = models.ForeignKey('Class', on_delete=models.CASCADE, null=False)
+    grade = models.ForeignKey('Grade', on_delete=models.CASCADE, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class Class(models.Model):
+class Grade(models.Model):
     name = models.CharField(max_length=50, blank=False, null=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
