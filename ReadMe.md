@@ -15,7 +15,11 @@ C:\Users\Thomas\AppData\Local\Programs\Python\Python310
 # 前端代码编写
 # 启动脚本
 # 自测用例
+
 # 运行
+## 安装依赖
+### 后端
+> pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ## 修改DB和缓存配置
 ## 初始化DB
 > python manage.py makemigrations
@@ -23,6 +27,10 @@ C:\Users\Thomas\AppData\Local\Programs\Python\Python310
 > python manage.py migrate
 ## 初始化数据
 > python manage.py createsuperuser
-> 
+
  注意!，windows环境需要在CMD中执行，否则报错
+
 > Superuser creation skipped due to not running in a TTY. You can run `manage.py createsuperuser` in your project to create one manually
+
+## 接口测试
+> python manage.py test
