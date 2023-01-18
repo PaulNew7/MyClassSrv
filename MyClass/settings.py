@@ -140,3 +140,28 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
 }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,  # 表示是否禁用所有的已存在的日志配置
+    'formatters': {  # 日志格式
+        'default': {
+            'format': '%(asctime)s %(name)s  %(pathname)s:%(lineno)d %(module)s:%(funcName)s %(levelname)s- %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'},
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+            },
+    },
+    'handlers': {  # 处理器
+        'console': {  # 输出到控制台
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['console']
+    }
+}

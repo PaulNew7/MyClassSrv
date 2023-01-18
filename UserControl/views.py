@@ -81,19 +81,23 @@ class CacheUtils():
         cache.delete(lock_key)
 
     def get_or_init(self, key, default):
-        raw = cache.get(key)
-        if raw is None:
-            logging.warning(f'init_cache__{key}__{default}')
-            if self.lock(key):
-                cache.set(key, default)
-                self.unlock(key)
-            else:
-                raise Exception('fail to update cache')
-            raw = json.dumps(default)
-        return json.loads(raw)
+        raw = cache.get(key) or default
+        # if raw is None:
+        #     logging.warning(f'init_cache__{key}__{default}')
+        #     if self.lock(key):
+        #         cache.set(key, default)
+        #         self.unlock(key)
+        #     else:
+        #         raise Exception('fail to update cache')
+        #     raw = json.dumps(default)
+        if isinstance(raw, str):
+            raw = json.loads(raw)
+        return raw
 
     def set(self, key, val):
-        logging.info('----update-cache:{key}:{val}')
+        logging.info(f'----update-cache:{key}:{val}')
+        if isinstance(val, set):
+            val = list(val)
         cache.set(key, json.dumps(val))
 
     def get_multi_stu_info(self, stu_id_list):
@@ -181,7 +185,26 @@ class CacheUtils():
             raise Exception('fail to update cache')
 
         # 更新班级学生映射cache
-        self.add_grade_info(grade_name, {stu_id})
+        # self.add_grade_info(grade_name, {stu_id}) # 不能单个更新，可能出现不一致
+        self.update_grade_info(grade_name)
+
+    def update_grade_info(self, name):
+        '''
+        批量更新班级学生映射
+        :param name:
+        :return: [stu_id,...]
+        '''
+        data = self.get_or_init(self.key_gradeInfo, {})
+        logging.info(f'{self.key_gradeInfo}:---{data}')
+        if self.lock(self.key_gradeInfo):
+            l_stu_id = Grade.objects.get(name=name).student_set.values_list('id')
+            data[name] = [i[0] for i in list(l_stu_id)]
+            self.set(self.key_gradeInfo, data)
+            # 释放锁
+            self.unlock(self.key_gradeInfo)
+            return l_stu_id
+        else:
+            raise Exception('fail to update cache')
 
     def add_grade_info(self, name, stu_id_set):
         '''
@@ -240,8 +263,9 @@ class CacheUtils():
         data = self.get_or_init(self.key_gradeInfo, {})
         if not data.get(name):
             logging.warning('no cache')
-            l_stu_id = Grade.objects.get(name=name).student_set.values('id')
-            self.add_grade_info(name, set(l_stu_id))
+
+            # self.add_grade_info(name, set(l_stu_id))
+            l_stu_id = self.update_grade_info(name)
         else:
             l_stu_id = data['name']
 
@@ -303,14 +327,14 @@ class StudentViewSet(viewsets.ModelViewSet):
         '''
         print("新建时候执行--------------------------")
         resp = super(StudentViewSet, self).create(request, *args, **kwargs)
-
         # 更新缓存
+        map_gender = dict(resp.data.serializer.Meta.model.gender_choices)
         params = {
             'name': resp.data['name'],
             'code': resp.data['code'],
-            'gender': resp.data['gender'],
-            'grade_id': resp.data['grade_id'],
-            'grade_name': resp.data['grade_name'],
+            'gender': map_gender[resp.data['gender']],
+            'grade_id': resp.data['grade'],
+            'grade_name': resp.data.serializer.validated_data['grade'].name,
             'stu_id': resp.data['id']
         }
         CacheUtils().update_stu_info(**params)

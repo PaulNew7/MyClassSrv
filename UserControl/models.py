@@ -1,6 +1,4 @@
 from django.db import models
-
-# Create your models here.
 from django.utils import timezone
 from django.core.validators import RegexValidator
 
@@ -12,7 +10,7 @@ class Student(models.Model):
     gender_choices = (
         (1, '男'), (2, '女'), (3, '其他')
     )
-    name = models.CharField(max_length=32, blank=False, null=False, db_index=True)
+    name = models.CharField(max_length=32, blank=False, null=False, db_index=True, unique=True)
     code = models.CharField(max_length=8, blank=False, null=False, validators=[num_only], unique=True)
     gender = models.SmallIntegerField(blank=False, null=False, choices=gender_choices)
     grade = models.ForeignKey('Grade', on_delete=models.CASCADE, null=False)

@@ -1,3 +1,5 @@
+import random
+import time
 import requests
 import json
 import datetime
@@ -25,13 +27,45 @@ class MyTest(TestCase):
         #     self.t_post_grade()
         # 改
         # self.t_put_grade(self.new_grade['id'])
-        self.t_put_grade(34) # debug
+        # self.t_put_grade(34) # debug
         # # 查单个
         # self.t_get_grade(self.new_grade['id'])
         # # 查前10个
         # self.t_get_grades()
         # # 删最后一个
         # self.t_delete_grade(self.new_grade['id'])
+        pass
+
+    def test_stu_api(self):
+        # 增
+        # for i in range(10):
+        for i in range(1):
+            self.t_post_stuents()
+        # 改
+        # self.t_put_grade(self.new_grade['id'])
+        # self.t_put_grade(34) # debug
+        # # 查单个
+        # self.t_get_grade(self.new_grade['id'])
+        # # 查前10个
+        # self.t_get_grades()
+        # # 删最后一个
+        # self.t_delete_grade(self.new_grade['id'])
+        pass
+
+    def t_post_stuents(self):
+        print('create_stu')
+        params = {
+            'name': f'名字{datetime.datetime.now()}',
+            'code': int(str(time.time()).split('.')[1]),
+            'gender': random.randint(1, 3),
+            'grade': random.randint(1, 3)
+        }
+        res = requests.post(URL_Student, json=params)
+        # if res.status_code >300:
+        #     print(res.content)
+        print(json.dumps(res.json(), indent=4, ensure_ascii=False))
+        self.new_grade = res.json()
+        self.assertEqual(res.status_code, 201)
 
     def t_get_students(self):
         print('stu_list')
