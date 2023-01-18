@@ -3,12 +3,16 @@ import logging
 import time
 
 from django.shortcuts import render
+from django.http.response import HttpResponseForbidden
 from django.core.cache import cache
 from rest_framework import viewsets
 
 from UserControl.models import Student, Grade
 from UserControl.serializers import StudentSerializer, GradeSerializer
 
+
+# TODO 拆离view层
+# TODO 删除学生/班级时的缓存联动
 class CacheUtils():
     '''
 
@@ -138,6 +142,17 @@ class CacheUtils():
         return result
 
     def update_stu_info(self, stu_id, name, code, gender, grade_id, grade_name):
+        '''
+        更新学生信息, 学生映射和班级学生映射cache
+        幂等操作，新增修改皆可使用。
+        :param stu_id:
+        :param name:
+        :param code:
+        :param gender:
+        :param grade_id:
+        :param grade_name:
+        :return:
+        '''
         # 更新学生信息cache
         data = self.get_or_init(self.key_stuInfo, {})
         logging.info(f'{self.key_stuInfo}:---{data}')
@@ -270,6 +285,7 @@ class CacheUtils():
         stu['grade_name'] = grade_name
         return stu
 
+
 class StudentViewSet(viewsets.ModelViewSet):
     '''
     学生API
@@ -287,7 +303,18 @@ class StudentViewSet(viewsets.ModelViewSet):
         '''
         print("新建时候执行--------------------------")
         resp = super(StudentViewSet, self).create(request, *args, **kwargs)
-        CacheUtils().update_grade_map(resp.data['name'], resp.data['id'])
+
+        # 更新缓存
+        params = {
+            'name': resp.data['name'],
+            'code': resp.data['code'],
+            'gender': resp.data['gender'],
+            'grade_id': resp.data['grade_id'],
+            'grade_name': resp.data['grade_name'],
+            'stu_id': resp.data['id']
+        }
+        CacheUtils().update_stu_info(**params)
+
         return resp
 
     def update(self, request, *args, **kwargs):
@@ -299,8 +326,21 @@ class StudentViewSet(viewsets.ModelViewSet):
         :return:
         '''
         resp = super(StudentViewSet, self).update(request, *args, **kwargs)
-        CacheUtils().update_grade_map(resp.data['name'], resp.data['id'])
+
+        # 更新缓存
+        params = {
+            'name': resp.data['name'],
+            'code': resp.data['code'],
+            'gender': resp.data['gender'],
+            'grade_id': resp.data['grade_id'],
+            'grade_name': resp.data['grade_name'],
+            'stu_id': resp.data['id']
+        }
+        CacheUtils().update_stu_info(**params)
         return resp
+
+    def destroy(self, request, *args, **kwargs):
+        return HttpResponseForbidden('禁用')
 
 
 class GradeViewSet(viewsets.ModelViewSet):
@@ -334,3 +374,6 @@ class GradeViewSet(viewsets.ModelViewSet):
         resp = super(GradeViewSet, self).update(request, *args, **kwargs)
         CacheUtils().update_grade_map(resp.data['name'], resp.data['id'])
         return resp
+
+    def destroy(self, request, *args, **kwargs):
+        return HttpResponseForbidden('禁用')

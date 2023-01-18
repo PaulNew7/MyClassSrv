@@ -11,9 +11,16 @@ C:\Users\Thomas\AppData\Local\Programs\Python\Python310
 - - nmp
 # 插件安裝
 # 后端代码编写
-## 公共库缓存
+## 缓存设计优点
+- cache数据结构解耦拆分
+- 使用str数据类型，无缝迁移redis/memcache等
+- cache结构使用dict/set,更新函数都是幂等操作
+- 新增修改皆可使用
+> 学生信息, 学生映射，班级学生映射， 班级映射
+
+> 
+ 
 # 前端代码编写
-# 启动脚本
 # 自测用例
 
 # 运行
@@ -32,5 +39,7 @@ C:\Users\Thomas\AppData\Local\Programs\Python\Python310
 
 > Superuser creation skipped due to not running in a TTY. You can run `manage.py createsuperuser` in your project to create one manually
 
-## 接口测试
+## 接口测试(会创建数据)
 > python manage.py test
+
+## 文档
