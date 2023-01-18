@@ -21,6 +21,6 @@ class StudentSerializer(serializers.ModelSerializer):
         student = Student.objects.create(**validated_data)
         return student
 
-    def update(self, instance, validated_data):
-        student = Student.objects.update(**validated_data)
-        return student
+    # def update(self, instance, validated_data):
+    #     student = Student.objects.filter(id=instance.id).update(**validated_data)
+    #     return student

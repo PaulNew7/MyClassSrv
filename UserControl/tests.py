@@ -42,7 +42,7 @@ class MyTest(TestCase):
         for i in range(1):
             self.t_post_stuents()
         # 改
-        # self.t_put_grade(self.new_grade['id'])
+        self.t_patch_student(self.new_grade['id'])
         # self.t_put_grade(34) # debug
         # # 查单个
         # self.t_get_grade(self.new_grade['id'])
@@ -72,10 +72,21 @@ class MyTest(TestCase):
         res = requests.get(URL_Student)
         print(json.dumps(res.json(), indent=4, ensure_ascii=False))
 
-    def t_put_student(self):
-        print('stu_edit')
-        # res = requests.put(URL_Student, json=)
-        # print(json.dumps(res.json(), indent=4, ensure_ascii=False))
+    def t_get_student(self, pk=1):
+        print(f'get_student--------{pk}')
+        res = requests.get(URL_Student + f'{pk}/')
+        print(json.dumps(res.json(), indent=4, ensure_ascii=False))
+
+    def t_patch_student(self, pk=1):
+        print('put_student')
+        params = {'name': f'新名字{datetime.datetime.now()}',
+                  'grade': 21}
+        res = requests.patch(URL_Student + f'{pk}/', json=params)
+        if res.status_code >300:
+            with open('./error.html','wb') as f:
+                f.write(res.content)
+            # print(res.content)
+        print(json.dumps(res.json(), indent=4, ensure_ascii=False))
 
     # def t_patch_student(self):
     #     print('stu_patch')

@@ -352,12 +352,13 @@ class StudentViewSet(viewsets.ModelViewSet):
         resp = super(StudentViewSet, self).update(request, *args, **kwargs)
 
         # 更新缓存
+        map_gender = dict(resp.data.serializer.Meta.model.gender_choices)
         params = {
             'name': resp.data['name'],
             'code': resp.data['code'],
-            'gender': resp.data['gender'],
-            'grade_id': resp.data['grade_id'],
-            'grade_name': resp.data['grade_name'],
+            'gender': map_gender[resp.data['gender']],
+            'grade_id': resp.data['grade'],
+            'grade_name': resp.data.serializer.instance.grade.name,
             'stu_id': resp.data['id']
         }
         CacheUtils().update_stu_info(**params)
