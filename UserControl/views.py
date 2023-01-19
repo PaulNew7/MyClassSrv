@@ -3,7 +3,7 @@ import logging
 import time
 
 from django.shortcuts import render
-from django.http.response import HttpResponseForbidden
+from django.http.response import HttpResponseForbidden, JsonResponse
 from django.core.cache import cache
 from rest_framework import viewsets
 
@@ -198,7 +198,8 @@ class CacheUtils():
         logging.info(f'{self.key_gradeInfo}:---{data}')
         if self.lock(self.key_gradeInfo):
             l_stu_id = Grade.objects.get(name=name).student_set.values_list('id')
-            data[name] = [i[0] for i in list(l_stu_id)]
+            l_stu_id = [i[0] for i in list(l_stu_id)]
+            data[name] = l_stu_id
             self.set(self.key_gradeInfo, data)
             # 释放锁
             self.unlock(self.key_gradeInfo)
@@ -206,24 +207,24 @@ class CacheUtils():
         else:
             raise Exception('fail to update cache')
 
-    def add_grade_info(self, name, stu_id_set):
-        '''
-        批量更新班级学生映射
-        :param name:
-        :param stu_id_set:
-        :return:
-        '''
-        data = self.get_or_init(self.key_gradeInfo, {})
-        logging.info(f'{self.key_gradeInfo}:---{data}')
-        if self.lock(self.key_gradeInfo):
-            if name not in data:
-                data[name] = set()
-            data[name].update(stu_id_set)
-            self.set(self.key_gradeInfo, data)
-            # 释放锁
-            self.unlock(self.key_gradeInfo)
-        else:
-            raise Exception('fail to update cache')
+    # def add_grade_info(self, name, stu_id_set):
+    #     '''
+    #     批量更新班级学生映射
+    #     :param name:
+    #     :param stu_id_set:
+    #     :return:
+    #     '''
+    #     data = self.get_or_init(self.key_gradeInfo, {})
+    #     logging.info(f'{self.key_gradeInfo}:---{data}')
+    #     if self.lock(self.key_gradeInfo):
+    #         if name not in data:
+    #             data[name] = set()
+    #         data[name].update(stu_id_set)
+    #         self.set(self.key_gradeInfo, data)
+    #         # 释放锁
+    #         self.unlock(self.key_gradeInfo)
+    #     else:
+    #         raise Exception('fail to update cache')
 
     def update_grade_map(self, name, pk):
         data = self.get_or_init(self.key_gradeMap, {})
@@ -246,7 +247,7 @@ class CacheUtils():
 
         # 无缓存，则更新
         if not name:
-            name = Grade.objects.get(id=pk).values('name')[0]
+            name = Grade.objects.get(id=pk).name
             self.update_grade_map(name, pk)
 
         return name
@@ -267,7 +268,7 @@ class CacheUtils():
             # self.add_grade_info(name, set(l_stu_id))
             l_stu_id = self.update_grade_info(name)
         else:
-            l_stu_id = data['name']
+            l_stu_id = data[name]
 
         result = self.get_multi_stu_info(l_stu_id)
         return result
@@ -293,8 +294,8 @@ class CacheUtils():
                     'name': stu.name,
                     'code': stu.code,
                     'gender': stu.gender,
-                    'grade_id': stu.grade_id,
-                    'grade_name': stu.grade_name,
+                    'grade_id': stu.grade.id,
+                    'grade_name': stu.grade.name,
                     'stu_id': stu.id
                 }
             self.update_stu_info(**info)
@@ -316,6 +317,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     '''
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    filterset_fields = ['name']
 
     def create(self, request, *args, **kwargs):
         '''
@@ -325,7 +327,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         '''
-        print("新建时候执行--------------------------")
+        
         resp = super(StudentViewSet, self).create(request, *args, **kwargs)
         # 更新缓存
         map_gender = dict(resp.data.serializer.Meta.model.gender_choices)
@@ -364,6 +366,23 @@ class StudentViewSet(viewsets.ModelViewSet):
         CacheUtils().update_stu_info(**params)
         return resp
 
+    def list(self, request, *args, **kwargs):
+        '''
+        增加根据名字查询逻辑
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        '''
+        resp = super(StudentViewSet, self).list(request, *args, **kwargs)
+
+        # 根据名字查询
+        name = request.query_params.get('name')
+        if name:
+            data = CacheUtils().read_stu_info_by_name(name)
+            resp = JsonResponse(data)
+        return resp
+
     def destroy(self, request, *args, **kwargs):
         return HttpResponseForbidden('禁用')
 
@@ -384,7 +403,7 @@ class GradeViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         '''
-        print("新建时候执行--------------------------")
+        
         resp = super(GradeViewSet, self).create(request, *args, **kwargs)
         CacheUtils().update_grade_map(resp.data['name'], resp.data['id'])
         return resp
@@ -399,6 +418,26 @@ class GradeViewSet(viewsets.ModelViewSet):
         '''
         resp = super(GradeViewSet, self).update(request, *args, **kwargs)
         CacheUtils().update_grade_map(resp.data['name'], resp.data['id'])
+        return resp
+
+    def list(self, request, *args, **kwargs):
+        '''
+        增加根据名字查询逻辑
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        '''
+        resp = super(GradeViewSet, self).list(request, *args, **kwargs)
+
+        # 根据名字查询
+        name = request.query_params.get('name')
+        if name:
+            stu_list = CacheUtils().read_grade_info_by_name(name)
+            _data = resp.data['results'][0]
+            data = dict(_data)
+            data['student_list'] = stu_list
+            resp = JsonResponse(data)
         return resp
 
     def destroy(self, request, *args, **kwargs):
