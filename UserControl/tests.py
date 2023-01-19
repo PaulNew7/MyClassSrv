@@ -22,40 +22,37 @@ class MyTest(TestCase):
     #     print(f'---------init-DB{res}')
     def test_grade_api(self):
         # 增
-        # for i in range(10):
-        # # for i in range(1):
-        #     self.t_post_grade()
-        # #改
-        # self.t_put_grade(self.new_grade['id'])
-        # # self.t_put_grade(34) # debug
-        # # 查单个
-        # self.t_get_grade(self.new_grade['id'])
-        # # 查前10个
-        # self.t_get_grades()
+        for i in range(3):
+            self.t_post_grade()
+        #改
+        self.t_put_grade(self.new_grade['id'])
+        # self.t_put_grade(34) # debug
+        # 查单个
+        self.t_get_grade(self.new_grade['id'])
+        # 查前10个
+        self.t_get_grades()
         # 查前指定名字
-        self.t_get_grades('ddd')
-        self.t_get_grades('ddd2')
+        self.t_get_grades(self.new_grade['name'])
+        self.t_get_grades(self.new_grade['name']+'F') # 不存在的
         # self.t_get_grades('一年级二班')
-        # # 删最后一个
+        # # 删最后一个(禁用)
         # # self.t_delete_grade(self.new_grade['id'])
         pass
 
     def test_stu_api(self):
         # 增
-        # for i in range(10):
-        # # for i in range(1):
-        #     self.t_post_stuent()
-        # # 改
-        # self.t_patch_student(self.new_grade['id'])
-        # # self.t_put_grade(34) # debug
-        # # # 查单个
-        # self.t_get_student(self.new_grade['id'])
-        # # # 查前10个
-        # self.t_get_students()
+        for i in range(10):
+            self.t_post_stuent()
+        # 改
+        self.t_patch_student(self.new_stu['id'])
+        # # 查单个
+        self.t_get_student(self.new_stu['id'])
+        # # 查前10个
+        self.t_get_students()
 
         # 根据名字查询
-        self.t_get_students('小米1')
-        self.t_get_students('小米')
+        self.t_get_students(self.new_stu['name'])
+        self.t_get_students(self.new_stu['name']+'F')  # 不存在的
         # # # 删最后一个
         pass
 
@@ -71,7 +68,7 @@ class MyTest(TestCase):
         # if res.status_code >300:
         #     print(res.content)
         print(json.dumps(res.json(), indent=4, ensure_ascii=False))
-        self.new_grade = res.json()
+        self.new_stu = res.json()
         self.assertEqual(res.status_code, 201)
 
     def t_get_students(self, name=None):
