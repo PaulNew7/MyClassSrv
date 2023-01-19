@@ -39,7 +39,10 @@ C:\Users\Thomas\AppData\Local\Programs\Python\Python310
 
 > Superuser creation skipped due to not running in a TTY. You can run `manage.py createsuperuser` in your project to create one manually
 
-## 接口测试(会创建数据)
+## 接口测试(每次运行均会创建数据)
 > python manage.py test
 
+如遇报错，详情可用浏览器打开并刷新./error.html查看
+
 ## 文档
+> http://localhost:8000/docs/

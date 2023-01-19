@@ -374,6 +374,7 @@ class GradeViewSet(viewsets.ModelViewSet):
     '''
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
+    filterset_fields = ['name']
 
     def create(self, request, *args, **kwargs):
         '''

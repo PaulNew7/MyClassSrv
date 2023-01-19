@@ -23,15 +23,15 @@ class MyTest(TestCase):
     def test_grade_api(self):
         # 增
         # for i in range(10):
-        # for i in range(1):
-        #     self.t_post_grade()
-        # 改
-        # self.t_put_grade(self.new_grade['id'])
+        for i in range(1):
+            self.t_post_grade()
+        #改
+        self.t_put_grade(self.new_grade['id'])
         # self.t_put_grade(34) # debug
-        # # 查单个
-        # self.t_get_grade(self.new_grade['id'])
-        # # 查前10个
-        # self.t_get_grades()
+        # 查单个
+        self.t_get_grade(self.new_grade['id'])
+        # 查前10个
+        self.t_get_grades()
         # # 删最后一个
         # self.t_delete_grade(self.new_grade['id'])
         pass
@@ -45,11 +45,10 @@ class MyTest(TestCase):
         self.t_patch_student(self.new_grade['id'])
         # self.t_put_grade(34) # debug
         # # 查单个
-        # self.t_get_grade(self.new_grade['id'])
+        self.t_get_student(self.new_grade['id'])
         # # 查前10个
-        # self.t_get_grades()
+        self.t_get_students()
         # # 删最后一个
-        # self.t_delete_grade(self.new_grade['id'])
         pass
 
     def t_post_stuents(self):
