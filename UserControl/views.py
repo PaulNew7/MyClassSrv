@@ -378,9 +378,13 @@ class StudentViewSet(viewsets.ModelViewSet):
 
         # 根据名字查询
         name = request.query_params.get('name')
-        if name:
-            data = CacheUtils().read_stu_info_by_name(name)
-            resp = JsonResponse(data)
+        try:
+            if name:
+                data = CacheUtils().read_stu_info_by_name(name)
+                resp = JsonResponse(data)
+        except Exception as e:  # todo 基类中封装捕获，并细分错误码
+            resp = JsonResponse({'err_msg': str(e)})
+            resp.status_code = 500
         return resp
 
     def destroy(self, request, *args, **kwargs):
@@ -433,11 +437,15 @@ class GradeViewSet(viewsets.ModelViewSet):
         # 根据名字查询
         name = request.query_params.get('name')
         if name:
-            stu_list = CacheUtils().read_grade_info_by_name(name)
-            _data = resp.data['results'][0]
-            data = dict(_data)
-            data['student_list'] = stu_list
-            resp = JsonResponse(data)
+            try:
+                stu_list = CacheUtils().read_grade_info_by_name(name)
+                _data = resp.data['results'][0]
+                data = dict(_data)
+                data['student_list'] = stu_list
+                resp = JsonResponse(data)
+            except Exception as e:  # todo 基类中封装捕获，并细分错误码
+                resp = JsonResponse({'err_msg': str(e)})
+                resp.status_code = 500
         return resp
 
     def destroy(self, request, *args, **kwargs):

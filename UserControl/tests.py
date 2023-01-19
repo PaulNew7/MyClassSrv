@@ -23,7 +23,7 @@ class MyTest(TestCase):
     def test_grade_api(self):
         # 增
         # for i in range(10):
-        # for i in range(1):
+        # # for i in range(1):
         #     self.t_post_grade()
         # #改
         # self.t_put_grade(self.new_grade['id'])
@@ -33,17 +33,18 @@ class MyTest(TestCase):
         # # 查前10个
         # self.t_get_grades()
         # 查前指定名字
-        # self.t_get_grades('ddd')
+        self.t_get_grades('ddd')
+        self.t_get_grades('ddd2')
         # self.t_get_grades('一年级二班')
-        # # # 删最后一个
-        # # # self.t_delete_grade(self.new_grade['id'])
+        # # 删最后一个
+        # # self.t_delete_grade(self.new_grade['id'])
         pass
 
     def test_stu_api(self):
         # 增
         # for i in range(10):
-        # for i in range(1):
-        #     self.t_post_stuents()
+        # # for i in range(1):
+        #     self.t_post_stuent()
         # # 改
         # self.t_patch_student(self.new_grade['id'])
         # # self.t_put_grade(34) # debug
@@ -53,14 +54,15 @@ class MyTest(TestCase):
         # self.t_get_students()
 
         # 根据名字查询
+        self.t_get_students('小米1')
         self.t_get_students('小米')
         # # # 删最后一个
         pass
 
-    def t_post_stuents(self):
+    def t_post_stuent(self):
         print('create_stu')
         params = {
-            'name': f'名字{datetime.datetime.now()}',
+            'name': f'名字'+str(time.time()).split('.')[1],
             'code': int(str(time.time()).split('.')[1]),
             'gender': random.randint(1, 3),
             'grade': random.randint(1, 3)
