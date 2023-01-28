@@ -438,6 +438,10 @@ class GradeViewSet(viewsets.ModelViewSet):
         name = request.query_params.get('name')
         if name:
             try:
+                if not resp.data['count']:
+                    return JsonResponse({
+
+                    })
                 stu_list = CacheUtils().read_grade_info_by_name(name)
                 _data = resp.data['results'][0]
                 data = dict(_data)
